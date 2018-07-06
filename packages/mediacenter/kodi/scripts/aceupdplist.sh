@@ -8,6 +8,6 @@
 
 [ -z "$ACETTV_UPD" ] && ACETTV_UPD="0"
 
-[ "$ACETTV_UPD" == "1" ] && /usr/bin/live-ttv-get
+[ "$ACETTV_UPD" == "1" ] && /usr/bin/ttvget-live
 
 exit 0

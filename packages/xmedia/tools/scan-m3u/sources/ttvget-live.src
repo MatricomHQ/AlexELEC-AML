@@ -10,7 +10,6 @@ M3U_DIR="/storage/ttv-m3u"
 NOX_M3U="$M3U_DIR/NoxLive-TTV.m3u"
 ACE_M3U="$M3U_DIR/AceLive-TTV.m3u"
 TVH_M3U="$M3U_DIR/TVH-TTV.m3u"
-ACE_M3U_DIRECT="$M3U_DIR/AceLive-TTV-Direct.m3u"
 
 NOX_DIR="/storage/.config/noxbit"
 NOX_FILE="$NOX_DIR/ttv-m3u/noxbit.m3u"
@@ -20,7 +19,6 @@ JSON_FILE="$ACE_DIR/ttv-m3u/acelive.json"
 JSON_FILE_GZ="$JSON_FILE.gz"
 LOGO_LIST="$ACE_DIR/ttv-logo.list"
 TMP_LIST="/tmp/tmp-acettv.list"
-TOR_STATUS="none"
 RUN_STATUS=
 
 URL_FILE="$ACE_DIR/trash-url.conf"
@@ -40,8 +38,8 @@ URL_M3U=$(echo $URL_JSON | sed 's|\.json|\/|')
 
 [ -z "$ACETTV_IP" ] && ACETTV_IP="0"
 [ -z "$CAT_ALLFON" ] && CAT_ALLFON="0"
-[ -z "$TTV_SOFT" ] && TTV_SOFT="All"
-[ -z "$TRANSLATE" ] && TRANSLATE="All"
+[ -z "$TTV_SOFT" ] && TTV_SOFT="AceStream"
+[ -z "$TRANSLATE" ] && TRANSLATE="Trash-TTV"
 
 # clean Nox categories
 del_cat () {
@@ -62,15 +60,11 @@ cat $INFILE |
       CH_CID=`echo $LINE | awk -F\\# '{print $4}' | sed 's/^[ \t]*//; s/[ \t]*$//'`
       CH_LOGO=`grep -i -m 1 "$CH_NAME #" $LOGO_LIST | awk -F\\# '{print $2}' | sed 's/^[ \t]*//; s/[ \t]*$//'`
 
-      if [ "$TOR_STATUS" == "none" ]; then
-          echo "#EXTINF:-1 group-title=\"$CH_CAT\" tvg-logo=\"$CH_LOGO\",$CH_NAME" >> $INFILE.ace
-          echo "http://${URL_IP}:6878/ace/getstream?url=${URL_M3U}${CH_PATH}&.mp4" >> $INFILE.ace
+      echo "#EXTINF:-1 group-title=\"$CH_CAT\" tvg-logo=\"$CH_LOGO\",$CH_NAME" >> $INFILE.ace
+      echo "http://${URL_IP}:6878/ace/getstream?url=${URL_M3U}${CH_PATH}&.mp4" >> $INFILE.ace
 
-          echo "#EXTINF:-1 group-title=\"$CH_CAT\" tvg-logo=\"$CH_LOGO\",$CH_NAME" >> $INFILE.tvh
-          echo "pipe://ffmpeg -loglevel quiet -i http://${URL_IP}:6878/ace/getstream?url=${URL_M3U}${CH_PATH}&.mp4 -c copy -map 0 -f mpegts pipe:1" >> $INFILE.tvh
-      fi
-      echo "#EXTINF:-1 group-title=\"$CH_CAT\" tvg-logo=\"$CH_LOGO\",$CH_NAME" >> $INFILE.dct
-      echo "http://${URL_IP}:6878/ace/getstream?id=${CH_CID}&.mp4" >> $INFILE.dct
+      echo "#EXTINF:-1 group-title=\"$CH_CAT\" tvg-logo=\"$CH_LOGO\",$CH_NAME" >> $INFILE.tvh
+      echo "pipe://ffmpeg -loglevel quiet -i http://${URL_IP}:6878/ace/getstream?url=${URL_M3U}${CH_PATH}&.mp4 -c copy -map 0 -f mpegts pipe:1" >> $INFILE.tvh
   done
   rm -f $INFILE
 }
@@ -87,14 +81,6 @@ ace_run () {
   curl -s -k --connect-timeout 5 --max-time 20 -R -z "$JSON_FILE_GZ" -o "$JSON_FILE_GZ" -H "Accept-Encoding: gzip" "$URL_JSON"
 
   if [ ! -f "$JSON_FILE_GZ" ]; then
-    /usr/bin/tor > /dev/null 2>&1 &
-    sleep 6
-    curl -s --socks5-hostname "127.0.0.1:9050" --connect-timeout 8 --max-time 30 -R -z "$JSON_FILE_GZ" -o "$JSON_FILE_GZ" -H "Accept-Encoding: gzip" "http://hmxuku36whbypzxi.onion/trash/ttv-list/acelive.json"
-    killall -9 tor > /dev/null 2>&1
-    [ -e "$JSON_FILE_GZ" ] && TOR_STATUS="yes"
-  fi
-
-  if [ ! -f "$JSON_FILE_GZ" ]; then
     if [ "$1" == "next" ]; then
       RUN_STATUS="AceStream: Could not load json-file."
       return
@@ -106,7 +92,7 @@ ace_run () {
 
   STAT_NEW=`stat $JSON_FILE_GZ | grep 'Modify:'`
   if [ "$STAT_OLD" == "$STAT_NEW" ]; then
-    if [ -f "$ACE_M3U" -a -f "$ACE_M3U_DIRECT" ]; then
+    if [ -f "$ACE_M3U" ]; then
       if [ "$1" == "next" ]; then
         RUN_STATUS="AceStream: You already actual playlist."
         return
@@ -120,13 +106,13 @@ ace_run () {
   gunzip -c "$JSON_FILE_GZ" > "$JSON_FILE"
 
   case "$TRANSLATE" in
-    Torrent-TV)
+    Trash-TTV)
       /usr/bin/jq -r '.|= sort_by(.cat,.name)|.[]|select(.source=="ttv.json")|select(.name!=null)|select(.cat!=null) | .cat + " # " + .name + " # " + .fname + " # " + .cid' $JSON_FILE > $TMP_LIST
     ;;
-    AceStream)
+    Trash-Ace)
       /usr/bin/jq -r '.|= sort_by(.cat,.name)|.[]|select(.source=="as.json")|select(.provkey=="ace")|select(.name!=null)|select(.cat!=null) | .cat + " # " + .name + " # " + .fname + " # " + .cid' $JSON_FILE > $TMP_LIST
     ;;
-    All)
+    Trash-All)
       /usr/bin/jq -r '.|= sort_by(.cat,.name)|.[]|select(.source=="ttv.json")|select(.name!=null)|select(.cat!=null) | .cat + " # " + .name + " # " + .fname + " # " + .cid' $JSON_FILE > $TMP_LIST
       /usr/bin/jq -r '.|= sort_by(.cat,.name)|.[]|select(.source=="as.json")|select(.provkey=="ace")|select(.name!=null)|select(.cat!=null) | .cat + " # " + .name + " # " + .fname + " # " + .cid' $JSON_FILE >> $TMP_LIST
     ;;
@@ -247,20 +233,13 @@ ace_run () {
     fi
   done
 
-  if [ "$TOR_STATUS" == "none" ]; then
-      echo '#EXTM3U' > $ACE_M3U
-      echo '#EXTM3U' > $TVH_M3U
-  fi
-  echo '#EXTM3U' > $ACE_M3U_DIRECT
-
+  echo '#EXTM3U' > $ACE_M3U
   PART_ACE=`ls $PART_DIR/*.ace`
   cat $PART_ACE >> $ACE_M3U
 
+  echo '#EXTM3U' > $TVH_M3U
   PART_TVH=`ls $PART_DIR/*.tvh`
   cat $PART_TVH >> $TVH_M3U
-
-  PART_DIRECT=`ls $PART_DIR/*.dct`
-  cat $PART_DIRECT >> $ACE_M3U_DIRECT
 
   rm -fr $PART_DIR
 
@@ -313,7 +292,7 @@ nox_run () {
   [ "$ACETTV_IP" == "1" ] && sed "s|127\.0\.0\.1|$URL_IP|g" -i $NOX_M3U
 }
 
-# Main
+#========= Main =========
 mkdir -p $M3U_DIR
 
 if [ "$ACETTV_IP" == "0" ]; then
@@ -328,7 +307,13 @@ fi
 
 case "$TTV_SOFT" in
   AceStream)
-    ace_run
+    if [ "$TRANSLATE" == "Site-TTV" ]; then
+      ret_msg=`/usr/bin/ttvget-direct`
+      echo "$ret_msg"
+      exit
+    else
+      ace_run
+    fi
     ;;
   Noxbit)
     nox_run
