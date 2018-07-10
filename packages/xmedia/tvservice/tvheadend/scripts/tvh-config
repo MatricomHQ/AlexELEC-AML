@@ -44,9 +44,6 @@ if [ "$TVH_BINDADDR" != "All" -a "$TVH_BINDADDR" != "" ] ; then
 
 fi
 
-CPU_ARCH=$(uname -m)
-[ "$CPU_ARCH" != "aarch64" ] && echo 'performance' > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-
 # TTV iptv config
 if [ ! -f "$TVH_HOME/ttv-iptv.copy" -a -d /usr/share/tvheadend/iptv ]; then
   if [ ! -d "$TVH_HOME/input/iptv" ]; then
