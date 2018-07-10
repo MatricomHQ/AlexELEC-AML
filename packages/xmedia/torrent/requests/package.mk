@@ -4,7 +4,7 @@
 ################################################################################
 
 PKG_NAME="requests"
-PKG_VERSION="2.18.4"
+PKG_VERSION="2.19.1"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="Apache"
@@ -31,4 +31,5 @@ makeinstall_target() {
 
 post_makeinstall_target() {
   find $INSTALL/usr/lib -name "*.py" -exec rm -rf "{}" ";"
+  #rm -rf $INSTALL/usr/lib/python*/site-packages/$PKG_NAME-*.egg-info
 }
