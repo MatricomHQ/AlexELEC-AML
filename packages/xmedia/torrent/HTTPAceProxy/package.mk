@@ -4,7 +4,7 @@
 ################################################################################
 
 PKG_NAME="HTTPAceProxy"
-PKG_VERSION="e18c12a"
+PKG_VERSION="3002740"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
@@ -25,6 +25,7 @@ make_target() {
 makeinstall_target() {
   mkdir -p $INSTALL/usr/config/aceproxy
     cp -PR $ROOT/$PKG_BUILD/aceclient \
+           $ROOT/$PKG_BUILD/modules \
            $ROOT/$PKG_BUILD/plugins \
            $ROOT/$PKG_BUILD/*.py \
            $INSTALL/usr/config/aceproxy

@@ -4,7 +4,7 @@
 ################################################################################
 
 PKG_NAME="urllib3"
-PKG_VERSION="1.22"
+PKG_VERSION="1.23"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="Apache"
@@ -31,5 +31,4 @@ makeinstall_target() {
 
 post_makeinstall_target() {
   find $INSTALL/usr/lib -name "*.py" -exec rm -rf "{}" ";"
-  rm -rf $INSTALL/usr/lib/python*/site-packages/$PKG_NAME-*.egg-info
 }

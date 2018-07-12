@@ -1,0 +1,7 @@
+#!/bin/sh
+################################################################################
+#      This file is part of Alex@ELEC - http://www.alexelec.in.ua
+#      Copyright (C) 2011-present Alexandr Zuyev (alex@alexelec.in.ua)
+################################################################################
+
+/usr/bin/streamlink --stdout --hds-segment-threads 3 --hls-segment-threads 3 --ringbuffer-size 5M "$1" best | /usr/bin/ffmpeg -loglevel quiet -i pipe:0 -c copy -map 0 -r 25 -f mpegts pipe:1

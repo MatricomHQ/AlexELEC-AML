@@ -47,7 +47,7 @@ post_install() {
 
 # tools
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET ImageMagick mc aml-vnc scan-s2 scan-m3u serviceref"
-  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET udpxy syncthing xupnpd boblightd htop"
+  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET udpxy syncthing xupnpd boblightd htop streamlink html-xml-utils"
 
 # games
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET emulationstation retroarch"

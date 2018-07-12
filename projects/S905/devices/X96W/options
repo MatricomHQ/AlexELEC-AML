@@ -1,0 +1,2 @@
+# Kernel extra targets to build
+  KERNEL_UBOOT_EXTRA_TARGET="gxl_p281_1g_x96w.dtb gxl_p281_2g_x96w.dtb"

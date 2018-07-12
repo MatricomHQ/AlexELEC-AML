@@ -1,7 +1,8 @@
 [Unit]
 Description=Update Acestream playlists service
-Before=kodi.service
-After=network-online.target graphical.target
+Before=kodi.service tvheadend.service
+After=network-online.target
+Wants=tvheadend.service
 ConditionPathExists=/storage/.cache/services/acerun.conf
 
 [Service]
