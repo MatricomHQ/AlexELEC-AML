@@ -1,0 +1,53 @@
+diff -Naurp tvheadend/configure tvheadend-patch/configure
+--- tvheadend/configure	2018-07-27 14:45:35.142457494 +0300
++++ tvheadend-patch/configure	2018-07-27 14:48:04.924918829 +0300
+@@ -159,20 +159,6 @@ else
+   COMPILER=gcc
+ fi
+ 
+-check_cc_snippet strlcat '#include <string.h>
+-int test(int argc, char **argv) {
+-  char dst[10];
+-  strlcat("test", dst, sizeof(dst));
+-  return 0;
+-}'
+-
+-check_cc_snippet strlcpy '#include <string.h>
+-int test(int argc, char **argv) {
+-  char dst[10];
+-  strlcpy("test", dst, sizeof(dst));
+-  return 0;
+-}'
+-
+ check_cc_snippet getloadavg '#include <stdlib.h>
+ void test() { getloadavg(NULL,0); }'
+ 
+diff -Naurp tvheadend/src/tvh_string.h tvheadend-patch/src/tvh_string.h
+--- tvheadend/src/tvh_string.h	2018-07-27 14:45:35.282456055 +0300
++++ tvheadend-patch/src/tvh_string.h	2018-07-27 14:48:05.068917347 +0300
+@@ -47,7 +47,6 @@ static inline const char *tvh_strbegins(
+   return s1;
+ }
+ 
+-#ifndef ENABLE_STRLCPY
+ static inline size_t strlcpy(char *dst, const char *src, size_t size)
+ {
+   size_t ret = strlen(src);
+@@ -58,9 +57,7 @@ static inline size_t strlcpy(char *dst,
+   }
+   return ret;
+ }
+-#endif
+ 
+-#ifndef ENABLE_STRLCAT
+ static inline size_t strlcat(char *dst, const char *src, size_t count)
+ {
+   size_t dlen = strlen(dst);
+@@ -75,7 +72,6 @@ static inline size_t strlcat(char *dst,
+   dst[len] = '\0';
+   return res;
+ }
+-#endif
+ 
+ #define tvh_strlcatf(buf, size, ptr, fmt...) \
+   do { int __r = snprintf((buf) + ptr, (size) - ptr, fmt); \
