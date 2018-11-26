@@ -1,5 +1,5 @@
 # VERSION: set full version
-  ALEXELEC_VERSION="2.3.11"
+  ALEXELEC_VERSION="2.3.12.1"
 
 # OS_VERSION: OS Version
   OS_VERSION="2.3"
